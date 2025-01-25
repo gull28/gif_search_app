@@ -76,7 +76,6 @@ class MainActivity : ComponentActivity() {
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
 
         
-        giphyApiService.printApiKey()
         setContent {
 
 

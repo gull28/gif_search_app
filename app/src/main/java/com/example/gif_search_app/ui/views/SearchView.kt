@@ -20,17 +20,29 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.gif_search_app.data.viewmodel.GifViewModel
 import com.example.gif_search_app.data.viewmodel.SearchViewModel
 import com.example.gif_search_app.ui.components.CollageGrid
+import com.example.gif_search_app.ui.components.ErrorDisplay
 
 @Composable
 fun SearchView(navController: NavController, viewModel: SearchViewModel = hiltViewModel(), gifViewModel: GifViewModel) {
     val query by viewModel.query.collectAsState()
     val pagingItems = viewModel.gifs.collectAsLazyPagingItems()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val configuration = LocalConfiguration.current
 
     val columns = when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> 6
         else -> 2
+    }
+
+    pagingItems.loadState.refresh.let { loadState ->
+        if (loadState is LoadState.Error) {
+            ErrorDisplay(
+                message = errorMessage ?: "Failed to search gifs",
+                onRetry = { viewModel.retry() }
+            )
+            return
+        }
     }
 
     Box(

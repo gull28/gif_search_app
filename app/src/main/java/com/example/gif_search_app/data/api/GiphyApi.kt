@@ -1,6 +1,5 @@
 package com.example.gif_search_app.data.api
 
-import com.example.gif_search_app.data.model.GifObject
 import com.example.gif_search_app.data.model.GiphyResponse
 import retrofit2.http.GET
 import retrofit2.http.Query

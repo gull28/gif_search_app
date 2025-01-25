@@ -16,17 +16,32 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.gif_search_app.data.viewmodel.GifViewModel
 import com.example.gif_search_app.data.viewmodel.PopularViewModel
 import com.example.gif_search_app.ui.components.CollageGrid
+import com.example.gif_search_app.ui.components.ErrorDisplay
 
 @Composable
-fun PopularView(navController: NavController, viewModel: PopularViewModel = hiltViewModel(), gifViewModel: GifViewModel = hiltViewModel()) {
+fun PopularView(
+    navController: NavController,
+    viewModel: PopularViewModel = hiltViewModel(),
+    gifViewModel: GifViewModel = hiltViewModel()
+) {
     val configuration = LocalConfiguration.current
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val gifs = viewModel.gifs.collectAsLazyPagingItems()
+
+    gifs.loadState.refresh.let { loadState ->
+        if (loadState is LoadState.Error) {
+            ErrorDisplay(
+                message = errorMessage ?: "Failed to load popular gifs",
+                onRetry = { viewModel.retry() }
+            )
+            return
+        }
+    }
 
     val columns = when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> 6
         else -> 2
     }
-    val gifs = viewModel.gifs.collectAsLazyPagingItems()
-
 
     Box(
         modifier = Modifier
@@ -38,7 +53,6 @@ fun PopularView(navController: NavController, viewModel: PopularViewModel = hilt
                 .fillMaxSize()
                 .padding(bottom = 16.dp)
         ) {
-
             Text(
                 text = "Popular",
                 style = MaterialTheme.typography.headlineLarge,
@@ -52,17 +66,15 @@ fun PopularView(navController: NavController, viewModel: PopularViewModel = hilt
                 columns = columns,
                 onLoadMore = {
                     if (gifs.loadState.append is LoadState.NotLoading) {
-
                         gifs.retry()
                     }
                 },
                 modifier = Modifier.weight(1f),
-                onGifClick = { it
-                    gifViewModel.updateSelectedGif(it)
+                onGifClick = { gif ->
+                    gifViewModel.updateSelectedGif(gif)
                     navController.navigate("gif")
                 }
             )
         }
     }
 }
-

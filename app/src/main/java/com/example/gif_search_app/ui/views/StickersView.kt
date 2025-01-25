@@ -3,6 +3,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -14,17 +16,32 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.gif_search_app.data.viewmodel.GifViewModel
 import com.example.gif_search_app.data.viewmodel.StickersViewModel
 import com.example.gif_search_app.ui.components.CollageGrid
+import com.example.gif_search_app.ui.components.ErrorDisplay
 
 @Composable
-fun StickersView(navController: NavController, stickersViewModel: StickersViewModel, gifViewModel: GifViewModel) {
+fun StickersView(
+    navController: NavController,
+    stickersViewModel: StickersViewModel,
+    gifViewModel: GifViewModel
+) {
     val configuration = LocalConfiguration.current
+    val errorMessage by stickersViewModel.errorMessage.collectAsState()
+    val stickers = stickersViewModel.gifs.collectAsLazyPagingItems()
 
     val columns = when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> 6
         else -> 2
     }
-    val stickers = stickersViewModel.stickers.collectAsLazyPagingItems()
 
+    stickers.loadState.refresh.let { loadState ->
+        if (loadState is LoadState.Error) {
+            ErrorDisplay(
+                message = errorMessage ?: "Failed to load stickers",
+                onRetry = { stickersViewModel.retry() }
+            )
+            return
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -36,7 +53,6 @@ fun StickersView(navController: NavController, stickersViewModel: StickersViewMo
                 .fillMaxSize()
                 .padding(bottom = 16.dp)
         ) {
-
             Text(
                 text = "Stickers",
                 style = MaterialTheme.typography.headlineLarge,
@@ -50,13 +66,12 @@ fun StickersView(navController: NavController, stickersViewModel: StickersViewMo
                 columns = columns,
                 onLoadMore = {
                     if (stickers.loadState.append is LoadState.NotLoading) {
-
                         stickers.retry()
                     }
                 },
                 modifier = Modifier.weight(1f),
-                onGifClick = { it ->
-                    gifViewModel.updateSelectedGif(it)
+                onGifClick = { gif ->
+                    gifViewModel.updateSelectedGif(gif)
                     navController.navigate("gif")
                 }
             )

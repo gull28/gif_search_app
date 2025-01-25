@@ -6,7 +6,7 @@ class GiphyApiService @Inject constructor(
     private val apiKey: String
 ) {
 
-    fun printApiKey() {
-        println("API Key: $apiKey")
+    fun getApiKey(): String {
+        return apiKey
     }
 }
