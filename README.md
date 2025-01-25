@@ -19,5 +19,4 @@ To run the project, follow these steps:
 
 ## Issues
 
-When writing Unit tests, I encountered an issue when mocking the dependencies for the test.
-Specifically the PagingSource.
+Some issues with Paging when writing Unit Tests, but overall seems to be working.
