@@ -6,18 +6,26 @@ import com.example.gif_search_app.data.api.GiphyApi
 import com.example.gif_search_app.data.model.GifObject
 import com.example.gif_search_app.data.model.GiphyResponse
 import com.example.gif_search_app.data.paging.GifPagingSource
-import kotlinx.coroutines.test.runTest
-import org.junit.Rule
-import org.junit.Test
 import io.mockk.coEvery
 import io.mockk.mockk
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import java.net.UnknownHostException
-
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-class GifPagingSourceTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class PopularViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -25,8 +33,18 @@ class GifPagingSourceTest {
     private val mockApi: GiphyApi = mockk()
     private val apiKey = "test_api_key"
 
+    @Before
+    fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun `test paging source load with search query`() = runTest {
+    fun `loadPopularGifs with successful result`() = runTest {
         val mockGifObjects = listOf(
             GifObject(
                 id = "test1",
@@ -43,9 +61,8 @@ class GifPagingSourceTest {
         )
 
         coEvery {
-            mockApi.searchGifs(
-                apiKey = "test_api_key",
-                query = "test",
+            mockApi.getTrendingGifs(
+                apiKey = apiKey,
                 limit = any(),
                 offset = any()
             )
@@ -58,7 +75,6 @@ class GifPagingSourceTest {
         val pagingSource = GifPagingSource(
             api = mockApi,
             apiKey = apiKey,
-            query = "test"
         )
 
         val loadParams = PagingSource.LoadParams.Refresh(
@@ -71,18 +87,17 @@ class GifPagingSourceTest {
 
         assertTrue(loadResult is PagingSource.LoadResult.Page)
 
-        val pageResult = loadResult as PagingSource.LoadResult.Page
+        val pageResult = loadResult
 
         assertEquals(mockGifObjects, pageResult.data)
         assertEquals(2, pageResult.nextKey)
     }
 
     @Test
-    fun `test paging source load with empty result`() = runTest {
+    fun `loadPopularGifs with empty result`() = runTest {
         coEvery {
-            mockApi.searchGifs(
+            mockApi.getTrendingGifs(
                 apiKey = "test_api_key",
-                query = "nonexistent",
                 limit = any(),
                 offset = any()
             )
@@ -95,7 +110,6 @@ class GifPagingSourceTest {
         val pagingSource = GifPagingSource(
             api = mockApi,
             apiKey = apiKey,
-            query = "nonexistent"
         )
 
         val loadParams = PagingSource.LoadParams.Refresh(
@@ -106,20 +120,18 @@ class GifPagingSourceTest {
 
         val loadResult = pagingSource.load(loadParams)
 
+
         assertTrue(loadResult is PagingSource.LoadResult.Page)
 
-        val pageResult = loadResult as PagingSource.LoadResult.Page
-
-        assertEquals(emptyList(), pageResult.data)
-        assertNull(pageResult.nextKey)
+        assertEquals(emptyList(), loadResult.data)
+        assertNull(loadResult.nextKey)
     }
 
     @Test
     fun `test paging source error handling`() = runTest {
         coEvery {
-            mockApi.searchGifs(
+            mockApi.getTrendingGifs(
                 apiKey = "test_api_key",
-                query = "error",
                 limit = any(),
                 offset = any()
             )
@@ -128,7 +140,6 @@ class GifPagingSourceTest {
         val pagingSource = GifPagingSource(
             api = mockApi,
             apiKey = apiKey,
-            query = "error"
         )
 
         val loadParams = PagingSource.LoadParams.Refresh(
@@ -139,10 +150,10 @@ class GifPagingSourceTest {
 
         val loadResult = pagingSource.load(loadParams)
 
-        assertTrue(loadResult is PagingSource.LoadResult.Error)
+        Assert.assertTrue(loadResult is PagingSource.LoadResult.Error)
 
         val errorResult = loadResult as PagingSource.LoadResult.Error
 
-        assertTrue(errorResult.throwable is GifPagingSource.NoInternetException)
+        Assert.assertTrue(errorResult.throwable is GifPagingSource.NoInternetException)
     }
 }
