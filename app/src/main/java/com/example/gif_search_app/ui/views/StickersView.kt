@@ -1,5 +1,6 @@
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +37,7 @@ fun StickersView(
     stickers.loadState.refresh.let { loadState ->
         if (loadState is LoadState.Error) {
             ErrorDisplay(
-                message = errorMessage ?: "Failed to load stickers",
+                message = errorMessage ?: "Failed to load sticker gifs",
                 onRetry = { stickersViewModel.retry() }
             )
             return

@@ -1,10 +1,7 @@
 package com.example.gif_search_app
 
 import android.content.Context
-import androidx.room.Room
 import com.example.gif_search_app.data.api.GiphyApi
-import com.example.gif_search_app.data.dao.FavoriteGifDao
-import com.example.gif_search_app.data.repo.GiphyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,11 +27,6 @@ object AppModule {
         return BuildConfig.GIPHY_API_KEY
     }
 
-    @Provides
-    @Singleton
-    fun provideGiphyRepository(api: GiphyApi, apiKey: String): GiphyRepository {
-        return GiphyRepository(api, apiKey)
-    }
 
     @Provides
     @Singleton

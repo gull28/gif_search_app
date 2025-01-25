@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Icon

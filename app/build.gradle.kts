@@ -66,12 +66,6 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.common)
-    kapt(libs.androidx.room.compiler)
-
-    implementation(libs.androidx.room.ktx)
-
     val nav_version = "2.8.5"
 
     implementation(libs.hilt.android)

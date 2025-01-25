@@ -1,8 +1,6 @@
 package com.example.gif_search_app.data.model
 
 import com.google.gson.annotations.SerializedName
-import java.io.Serial
-
 
 data class GiphyResponse(
     @SerializedName("data")

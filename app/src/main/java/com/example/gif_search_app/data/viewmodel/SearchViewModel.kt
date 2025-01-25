@@ -6,9 +6,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.gif_search_app.data.api.GiphyApi
 import com.example.gif_search_app.data.model.GifObject
 import com.example.gif_search_app.data.paging.GifPagingSource
-import com.example.gif_search_app.data.repo.GiphyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val repository: GiphyRepository,
+    private val api: GiphyApi,
     private val apiKey: String
 ) : ViewModel() {
 
@@ -63,7 +63,7 @@ class SearchViewModel @Inject constructor(
         val pager = Pager(
             config = PagingConfig(pageSize = 10, enablePlaceholders = false),
             pagingSourceFactory = {
-                GifPagingSource(repository.api, apiKey, query)
+                GifPagingSource(api, apiKey, query)
                     .also { currentPagingSource = it }
             }
         )
